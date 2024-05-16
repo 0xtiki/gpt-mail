@@ -7,7 +7,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @MessagePattern({ cmd: 'hello' })
-  getHello(input?: string): string {
-    return this.appService.getHello(input);
+  sendHello(input?: string): string {
+    return this.appService.sendHello(input);
   }
 }
