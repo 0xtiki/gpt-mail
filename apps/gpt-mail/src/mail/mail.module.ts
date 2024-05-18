@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
-import * as mg from 'nodemailer-mailgun-transport';
+import mg from 'nodemailer-mailgun-transport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GptModule } from '../gpt/gpt.module';
 
@@ -19,7 +19,7 @@ import { GptModule } from '../gpt/gpt.module';
           },
         }),
         defaults: {
-          from: `"gptMail" <gpt@${configService.get('MAILGUN_SENDING_DOMAIN')}>`,
+          from: `"gptMail" <${configService.get('GPT_MAIL_ASSISTANT_USERNAME')}@${configService.get('MAILGUN_SENDING_DOMAIN')}>`,
         },
       }),
       inject: [ConfigService],

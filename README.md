@@ -24,8 +24,8 @@ Got to localhost:3000/hello/<TYPE-SOME-MESSAGE-HERE>
 You will receive an email with Chad's response to your message.
 
 ## Env
-`HELLO_SERVICE_HOST`='0.0.0.0' - gpt-mail microservice host ip       
-`HELLO_SERVICE_PORT`=8080 - gpt-mail microservice port       
+`GPT_MAIL_SERVICE_HOST`='0.0.0.0' - gpt-mail microservice host ip       
+`GPT_MAIL_SERVICE_PORT`=8080 - gpt-mail microservice port       
 `OPENAI_API_KEY`      
 `MAILGUN_API_KEY`       
 `MAILGUN_SENDING_DOMAIN` domain registered in mailgun     

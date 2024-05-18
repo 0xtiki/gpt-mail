@@ -9,4 +9,14 @@ export class AppService {
     this.mailService.helloMail(input);
     return `Hello, ${input || 'there'}!`;
   }
+
+  createRoute(input: string): string {
+    this.mailService.createRoute(input);
+    return `Route created ${input}`;
+  }
+
+  listRoutes(): string {
+    this.mailService.listRoutes();
+    return `Listed`;
+  }
 }
