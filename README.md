@@ -7,21 +7,8 @@ Proof of concept for GPT email integration. The app consists of two micro servic
 
 ```
 yarn
-nest build gpt-mail
-nest build client
+bash ./scripts/run-dev.sh
 ```
-In one terminal start gpt-mail:
-```
-nest start gpt-mail
-```
-
-In another terminal start the client:
-```
-nest start client
-```
-Got to localhost:3000/hello/<TYPE-SOME-MESSAGE-HERE>
-
-You will receive an email with Chad's response to your message.
 
 ## Env
 `GPT_MAIL_SERVICE_HOST`='0.0.0.0' - gpt-mail microservice host ip       

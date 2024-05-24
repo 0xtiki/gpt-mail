@@ -1,31 +1,67 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/gpt-mail/src",
+  "sourceRoot": "apps/core/src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/gpt-mail/tsconfig.app.json"
+    "tsConfigPath": "apps/core/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/gpt-mail",
+  "root": "apps/core",
   "projects": {
-    "gpt-mail": {
+    "core": {
       "type": "application",
-      "root": "apps/gpt-mail",
+      "root": "apps/core",
       "entryFile": "main",
-      "sourceRoot": "apps/gpt-mail/src",
+      "sourceRoot": "apps/core/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/gpt-mail/tsconfig.app.json"
+        "tsConfigPath": "apps/core/tsconfig.app.json"
       }
     },
-    "client": {
+    "inbox": {
       "type": "application",
-      "root": "apps/client",
+      "root": "apps/inbox",
       "entryFile": "main",
-      "sourceRoot": "apps/client/src",
+      "sourceRoot": "apps/inbox/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/client/tsconfig.app.json"
+        "tsConfigPath": "apps/inbox/tsconfig.app.json"
+      }
+    },
+    "gpt": {
+      "type": "application",
+      "root": "apps/gpt",
+      "entryFile": "main",
+      "sourceRoot": "apps/gpt/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gpt/tsconfig.app.json"
+      }
+    },
+    "outbox": {
+      "type": "application",
+      "root": "apps/outbox",
+      "entryFile": "main",
+      "sourceRoot": "apps/outbox/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/outbox/tsconfig.app.json"
+      }
+    },
+    "dtos": {
+      "type": "library",
+      "root": "libs/dtos",
+      "entryFile": "index",
+      "sourceRoot": "libs/dtos/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/dtos/tsconfig.lib.json"
+      }
+    },
+    "types": {
+      "type": "library",
+      "root": "libs/types",
+      "entryFile": "index",
+      "sourceRoot": "libs/types/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/types/tsconfig.lib.json"
       }
     }
   }
