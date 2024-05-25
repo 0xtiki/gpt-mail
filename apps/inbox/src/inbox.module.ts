@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { ClientProxyFactory } from '@nestjs/microservices';
 import { InboxController } from './inbox.controller';
 import { InboxService } from './inbox.service';
+import { coreConfig } from '@app/config';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot({ load: [coreConfig] })],
   controllers: [InboxController],
   providers: [
     InboxService,
@@ -13,13 +14,7 @@ import { InboxService } from './inbox.service';
       provide: 'CORE_SERVICE',
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) =>
-        ClientProxyFactory.create({
-          transport: Transport.TCP,
-          options: {
-            host: configService.get('CORE_SERVICE_HOST'),
-            port: configService.get('CORE_SERVICE_PORT'),
-          },
-        }),
+        ClientProxyFactory.create(configService.get('core').transportConfig),
     },
   ],
 })

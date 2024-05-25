@@ -1,26 +1,17 @@
 import { Module } from '@nestjs/common';
 import { OutboxService } from './outbox.service';
-import { ConfigModule, ConfigService } from '@nestjs/config'; //ConfigService
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
-import mg from 'nodemailer-mailgun-transport';
 import { OutboxController } from './outbox.controller';
+import { outboxConfig } from '@app/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ load: [outboxConfig] }),
     MailerModule.forRootAsync({
       imports: [ConfigModule.forRoot()],
-      useFactory: async (configService: ConfigService) => ({
-        transport: mg({
-          auth: {
-            api_key: configService.get('MAILGUN_API_KEY'),
-            domain: configService.get('MAILGUN_SENDING_DOMAIN'),
-          },
-        }),
-        defaults: {
-          from: `"${configService.get('OUTBOX_EMAIL_TITLE')}" <${configService.get('OUTBOX_EMAIL_USERNAME')}@${configService.get('MAILGUN_SENDING_DOMAIN')}>`,
-        },
-      }),
+      useFactory: async (configService: ConfigService) =>
+        configService.get('outbox').emailProviderConfig,
       inject: [ConfigService],
     }),
   ],

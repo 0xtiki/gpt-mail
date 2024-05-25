@@ -3,9 +3,17 @@ import { IncomingMessageNotificationDto } from '@app/dtos';
 import crypto from 'crypto';
 import { ClientProxy } from '@nestjs/microservices';
 import OpenAI from 'openai';
-import { Observable, lastValueFrom } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  firstValueFrom,
+  lastValueFrom,
+  of,
+} from 'rxjs';
 import { ISendMailOptions } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { AxiosError } from 'axios';
 
 @Injectable()
 export class CoreService {
@@ -13,6 +21,7 @@ export class CoreService {
     @Inject('GPT_SERVICE') private gptService: ClientProxy,
     @Inject('OUTBOX_SERVICE') private outboxService: ClientProxy,
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
   ) {}
 
   verify(
@@ -26,8 +35,9 @@ export class CoreService {
       .update(timestamp.toString().concat(token))
       .digest('hex');
 
-    // TODO: set up environments
-    return process.env.NODE_ENV === 'dev' ? true : encodedToken === signature;
+    return process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'qa'
+      ? true
+      : encodedToken === signature;
   }
 
   authenticate() {
@@ -36,7 +46,19 @@ export class CoreService {
   }
 
   async fetchMessage(url: string) {
-    return { url };
+    if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'qa')
+      return url;
+
+    const { data } = await firstValueFrom(
+      this.httpService.get<any>(url).pipe(
+        catchError((error: AxiosError) => {
+          console.error(error.response.data);
+          throw 'An error happened!';
+        }),
+      ),
+    );
+    console.log(data);
+    return data;
   }
 
   async getThread(id) {
@@ -67,7 +89,7 @@ export class CoreService {
     // console.log(gptResponse);
     return {
       to:
-        process.env.NODE_ENV === 'dev'
+        process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'qa'
           ? this.configService.get('RECEIPIENT_EMAIL')
           : receipient,
       from: `${this.configService.get('GPT_MAIL_ASSISTANT_USERNAME')}@${this.configService.get('MAILGUN_SENDING_DOMAIN')}`,
@@ -90,49 +112,73 @@ export class CoreService {
   ): Promise<Observable<any>> {
     const verified = this.validateIncoming(incomingMessage);
 
-    let authenticated;
-    if (verified) {
-      authenticated = this.authenticate();
+    if (!verified) {
+      console.log('email verification failed');
+      return of({});
     }
 
-    let message;
-    if (authenticated) {
-      message = await this.fetchMessage(incomingMessage['message-url']);
+    const authenticated = this.authenticate();
+
+    if (!authenticated) {
+      console.log('email authentication failed');
+      return of({});
     }
 
-    let thread;
-    if (message) {
-      thread = await this.getThread(message);
+    const message = await this.fetchMessage(incomingMessage['message-url']);
+
+    if (!message) {
+      console.log('fetching message failed');
+      return of({});
     }
 
-    let prompt: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
-    if (thread) {
-      prompt = this.composePrompt(thread, incomingMessage['body-plain']);
+    const thread = await this.getThread(message);
+
+    if (!thread) {
+      console.log('fetching thread failed');
+      return of({});
     }
 
-    const gptResponse = await lastValueFrom(
-      this.gptService.send({ cmd: 'generateGptResponse' }, prompt),
-    );
-
-    console.log(`cor service: ${gptResponse}`);
-
-    let sendMailOptions: ISendMailOptions;
-    if (gptResponse) {
-      // await this.updateThread(thread, message, prompt);
-
-      sendMailOptions = this.composeResponseEmail(
-        incomingMessage.from,
-        gptResponse,
+    const prompt: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
+      this.composePrompt(
+        thread,
+        process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'qa'
+          ? incomingMessage['body-plain']
+          : message['body-plain'],
       );
 
-      console.log(sendMailOptions);
+    if (!prompt) {
+      console.log('failed to generate prompt');
+      return of({});
     }
 
-    console.log('core service done');
+    let gptResponse;
+    try {
+      gptResponse = await lastValueFrom(
+        this.gptService.send(
+          { cmd: 'generateGptResponse' },
+          JSON.stringify(prompt),
+        ),
+      );
+    } catch (e) {
+      console.log('failed to fetch GPT response');
+      return of({});
+    }
+
+    if (!gptResponse) {
+      console.log('no response received from gptService');
+      return of({});
+    }
+
+    const sendMailOptions: ISendMailOptions = this.composeResponseEmail(
+      incomingMessage.from,
+      gptResponse,
+    );
+
+    console.log('coreService: forwarding to outbox');
 
     return this.outboxService.send(
       { cmd: 'sendEmailResponse' },
-      sendMailOptions,
+      JSON.stringify(sendMailOptions),
     );
   }
 }

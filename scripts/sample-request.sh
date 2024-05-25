@@ -17,3 +17,14 @@ curl -X POST http://localhost:3000/inbox -H "Content-Type: application/json" -d 
   "message-headers": "{\"Received\":[\"from mail.example.com (mail.example.com [192.0.2.1]) by smtp.example.com with ESMTP id abc123\"],\"Subject\":\"Test Subject\"}",
   "Content-id-map": "{}"
 }'
+
+curl -X POST http://localhost:3000/inbox -H "Content-Type: application/json" -d '{
+  "message-url": "http://example.com/message/12345",
+  "timestamp": 1622470421,
+  "token": "abcdefghijklmnopqrstuvwxyz1234567890ABCDE",
+  "signature": "d41d8cd98f00b204e9800998ecf8427e"
+}'
+
+curl -X POST http://localhost:3000/inbox -H "Content-Type: application/json" -d '{
+  "message-url": "http://example.com/message/12345"
+}'

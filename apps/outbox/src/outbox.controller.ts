@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { OutboxService } from './outbox.service';
 import { ISendMailOptions } from '@nestjs-modules/mailer';
 
@@ -8,7 +8,8 @@ export class OutboxController {
   constructor(private readonly outboxService: OutboxService) {}
 
   @MessagePattern({ cmd: 'sendEmailResponse' })
-  sendEmail(input?: ISendMailOptions): Promise<number> {
-    return this.outboxService.createAndSendResponseEmail(input);
+  sendEmail(@Payload() input?: string): Promise<number> {
+    const sendMailOptions: ISendMailOptions = JSON.parse(input);
+    return this.outboxService.createAndSendResponseEmail(sendMailOptions);
   }
 }

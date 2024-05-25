@@ -16,6 +16,5 @@ export class InboxController {
   receiveEmail(@Body() messageNotification: IncomingMessageNotificationDto) {
     console.log(`Received mail from ${messageNotification.from}`);
     return this.inboxService.appendToCoreIncomingQueue(messageNotification);
-    // return messageNotification;
   }
 }

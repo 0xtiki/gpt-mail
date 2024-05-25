@@ -1,8 +1,8 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { CoreService } from './core.service';
 import { IncomingMessageNotificationDto } from '@app/dtos';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 @Controller()
 export class CoreController {
@@ -10,10 +10,17 @@ export class CoreController {
 
   @MessagePattern({ cmd: 'handleIncoming' })
   createAndSendResponseEmail(
-    input?: IncomingMessageNotificationDto,
+    @Payload() input?: string,
   ): Promise<Observable<any>> {
     if (input) {
-      return this.coreService.handleIncoming(input);
+      const incomingMesageNotification: IncomingMessageNotificationDto =
+        JSON.parse(input);
+      return this.coreService
+        .handleIncoming(incomingMesageNotification)
+        .catch((e) => {
+          console.log(`Failed to forward message to outbox: ${e}`);
+          return of({});
+        });
     }
   }
 }

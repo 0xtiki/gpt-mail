@@ -9,6 +9,9 @@ export class InboxService {
   appendToCoreIncomingQueue(
     messageNotification: IncomingMessageNotificationDto,
   ): Observable<any> {
-    return this.client.send({ cmd: 'handleIncoming' }, messageNotification);
+    return this.client.send(
+      { cmd: 'handleIncoming' },
+      JSON.stringify(messageNotification),
+    );
   }
 }

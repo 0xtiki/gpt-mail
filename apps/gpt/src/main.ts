@@ -1,22 +1,18 @@
 import { NestFactory } from '@nestjs/core';
-import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+import { MicroserviceOptions } from '@nestjs/microservices';
 import { GptModule } from './gpt.module';
+import { gptConfig } from '@app/config';
 
 async function bootstrap() {
-  const port = process.env.PORT
-    ? Number(process.env.PORT)
-    : Number(process.env.GPT_SERVICE_PORT);
+  const transportConfig = gptConfig().transportConfig;
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     GptModule,
-    {
-      transport: Transport.TCP,
-      options: {
-        host: '0.0.0.0',
-        port,
-      },
-    },
+    transportConfig,
   );
   await app.listen();
-  console.log('GPT Microservice listening on port:', port);
+  console.log(
+    'GPT Microservice transport config:',
+    JSON.stringify(transportConfig.options),
+  );
 }
 bootstrap();
