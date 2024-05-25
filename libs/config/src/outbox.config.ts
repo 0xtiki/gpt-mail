@@ -7,10 +7,11 @@ const transportOutboxOptions = (): TcpOptions | RmqOptions =>
     ? {
         transport: Transport.TCP,
         options: {
-          host: process.env.OUTBOX_SERVICE_HOST,
+          host: process.env.OUTBOX_SERVICE_HOST || '0.0.0.0',
           port:
             parseInt(process.env.OUTBOX_SERVICE_PORT) ||
-            parseInt(process.env.PORT),
+            parseInt(process.env.PORT) ||
+            3000,
         },
       }
     : {
@@ -23,20 +24,6 @@ const transportOutboxOptions = (): TcpOptions | RmqOptions =>
           },
         },
       };
-
-// export const transportMailgun = registerAs('transport_mailgun', () => {
-//   return {
-//     transport: mg({
-//       auth: {
-//         api_key: process.env.MAILGUN_API_KEY,
-//         domain: process.env.MAILGUN_SENDING_DOMAIN,
-//       },
-//     }),
-//     defaults: {
-//       from: `"${process.env.OUTBOX_EMAIL_TITLE}" <${process.env.OUTBOX_EMAIL_USERNAME}@${process.env.MAILGUN_SENDING_DOMAIN}>`,
-//     },
-//   };
-// });
 
 export const outboxConfig = registerAs(
   'outbox',

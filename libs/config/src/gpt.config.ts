@@ -6,10 +6,11 @@ const transportGptOptions = (): TcpOptions | RmqOptions =>
     ? {
         transport: Transport.TCP,
         options: {
-          host: process.env.GPT_SERVICE_HOST,
+          host: process.env.GPT_SERVICE_HOST || '0.0.0.0',
           port:
             parseInt(process.env.GPT_SERVICE_PORT) ||
-            parseInt(process.env.PORT),
+            parseInt(process.env.PORT) ||
+            3000,
         },
       }
     : {

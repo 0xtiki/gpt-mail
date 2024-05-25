@@ -17,7 +17,15 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/gpt-mail/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/gpt-mail/test/jest-e2e.json",
+    "start:dev:core": "nest start core --watch",
+    "start:prod:core": "node dist/apps/core/main",
+    "start:dev:inbox": "nest start inbox --watch",
+    "start:prod:inbox": "node dist/apps/inbox/main",
+    "start:dev:gpt": "nest start gpt --watch",
+    "start:prod:gpt": "node dist/apps/gpt/main",
+    "start:dev:outbox": "nest start outbox --watch",
+    "start:prod:outbox": "node dist/apps/outbox/main"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",

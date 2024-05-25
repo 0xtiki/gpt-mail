@@ -12,7 +12,7 @@ async function bootstrap() {
   await app.listen();
   console.log(
     'Core Microservice transport config:',
-    JSON.stringify(transportConfig.options),
+    JSON.stringify(transportConfig.transport),
   );
 }
 bootstrap();
