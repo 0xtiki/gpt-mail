@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  core:
+    build:
+      context: .
+      dockerfile: apps/core/Dockerfile
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=qa
+    env_file:
+      - .env
+  inbox:
+    build:
+      context: .
+      dockerfile: apps/inbox/Dockerfile
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=qa
+    env_file:
+      - .env
+  gpt:
+    build:
+      context: .
+      dockerfile: apps/gpt/Dockerfile
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=qa
+    env_file:
+      - .env
+  outbox:
+    build:
+      context: .
+      dockerfile: apps/outbox/Dockerfile
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=qa
+    env_file:
+      - .env
+
