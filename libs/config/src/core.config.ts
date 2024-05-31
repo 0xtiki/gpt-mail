@@ -16,7 +16,7 @@ const transportCoreOptions = (): TcpOptions | RmqOptions =>
     : {
         transport: Transport.RMQ,
         options: {
-          urls: [process.env.AMQP_URL],
+          urls: [process.env.CLOUDAMQP_URL],
           queue: process.env.AMQP_CORE_INBOX_QUEUE,
           queueOptions: {
             durable: true,

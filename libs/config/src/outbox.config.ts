@@ -17,7 +17,7 @@ const transportOutboxOptions = (): TcpOptions | RmqOptions =>
     : {
         transport: Transport.RMQ,
         options: {
-          urls: [process.env.AMQP_URL],
+          urls: [process.env.CLOUDAMQP_URL],
           queue: process.env.AMQP_OUTBOX_QUEUE,
           queueOptions: {
             durable: true,
