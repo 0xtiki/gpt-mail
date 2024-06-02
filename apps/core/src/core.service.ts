@@ -92,10 +92,10 @@ export class CoreService {
     // TODO: implement
     // console.log(gptResponse);
     return {
-      to:
-        process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'qa'
-          ? this.configService.get('RECEIPIENT_EMAIL')
-          : receipient,
+      to: receipient,
+      // process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'qa'
+      //   ? this.configService.get('RECEIPIENT_EMAIL')
+      //   : receipient,
       from: `${this.configService.get('GPT_MAIL_ASSISTANT_USERNAME')}@${this.configService.get('MAILGUN_SENDING_DOMAIN')}`,
       subject: 'Testing MailerModule ✔',
       text: `${gptResponse ? gptResponse.choices[0].message.content : 'Nothing!'}`,
@@ -174,7 +174,7 @@ export class CoreService {
     }
 
     const sendMailOptions: ISendMailOptions = this.composeResponseEmail(
-      incomingMessage.from,
+      incomingMessage.sender,
       gptResponse,
     );
 

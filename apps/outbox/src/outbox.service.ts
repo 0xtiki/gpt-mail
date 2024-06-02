@@ -1,14 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 
-// TODO: clean up
-// {
-//   to: this.configService.get('RECEIPIENT_EMAIL'),
-//   from: `${this.configService.get('GPT_MAIL_ASSISTANT_USERNAME')}@${this.configService.get('MAILGUN_SENDING_DOMAIN')}`,
-//   subject: 'Testing MailerModule ✔',
-//   text: `GPT bro say: ${gptResponse ? gptResponse.choices[0].message.content : 'Nothing!'}`,
-// }
-
 @Injectable()
 export class OutboxService {
   constructor(private readonly mailerService: MailerService) {}
