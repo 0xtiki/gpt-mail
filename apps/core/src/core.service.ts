@@ -1,21 +1,24 @@
-import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  OnApplicationShutdown,
+  Logger,
+} from '@nestjs/common';
 import { IncomingMessageDto, IncomingMessageNotificationDto } from '@app/dtos';
 import crypto from 'crypto';
 import { ClientProxy } from '@nestjs/microservices';
 import { Observable, catchError, firstValueFrom, of } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
-// import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class CoreService implements OnApplicationShutdown {
+  private readonly logger = new Logger(CoreService.name);
+
   constructor(
     @Inject('GPT_SERVICE') private gptService: ClientProxy,
     private readonly httpService: HttpService,
-    // private logger: PinoLogger,
-  ) {
-    // this.logger.setContext(CoreService.name);
-  }
+  ) {}
 
   verify(
     signingKey: string,
@@ -59,12 +62,12 @@ export class CoreService implements OnApplicationShutdown {
         })
         .pipe(
           catchError((e: AxiosError) => {
-            console.error(e.response.data);
+            this.logger.error(e.response.data);
             throw 'An error happened!';
           }),
         ),
     );
-    console.log(data);
+    this.logger.log(data);
     return data;
   }
 
@@ -74,7 +77,7 @@ export class CoreService implements OnApplicationShutdown {
 
   // async updateThread(thread, message, prompt) {
   //   // TODO: implement
-  //   // console.log(thread, message, prompt);
+  //   // this.logger.log(thread, message, prompt);
   // }
 
   validateIncoming(incomingMessage: IncomingMessageNotificationDto) {
@@ -92,28 +95,28 @@ export class CoreService implements OnApplicationShutdown {
     const verified = this.validateIncoming(incomingMessage);
 
     if (!verified) {
-      console.log('email verification failed');
+      this.logger.log('email verification failed');
       return of({});
     }
 
     const authenticated = this.authenticate(incomingMessage.sender);
 
     if (!authenticated) {
-      console.log('email authentication failed');
+      this.logger.log('email authentication failed');
       return of({});
     }
 
     const message = await this.fetchMessage(incomingMessage['message-url']);
 
     if (!message) {
-      console.log('fetching message failed');
+      this.logger.log('fetching message failed');
       return of({});
     }
 
     const thread = await this.getThread(message);
 
     if (!thread) {
-      console.log('fetching thread failed');
+      this.logger.log('fetching thread failed');
       return of({});
     }
 
@@ -128,14 +131,15 @@ export class CoreService implements OnApplicationShutdown {
         JSON.stringify({ message: outMessage, thread }),
       );
     } catch (e) {
-      console.log(`gpt service error ${e}`);
+      this.logger.log(`gpt service error ${e}`);
       return of({});
     }
   }
 
   onApplicationShutdown(signal?: string) {
-    console.log(`Shutting down gracefully ${signal}`);
-    console.log('Closing gpt client');
-    return this.gptService.close();
+    this.logger.log(`Shutting down gracefully ${signal}`);
+    this.gptService.close();
+    this.logger.log('Client closed');
+    process.exit(0);
   }
 }

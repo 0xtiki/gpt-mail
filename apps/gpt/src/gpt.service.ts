@@ -1,6 +1,11 @@
 import { IGptServiceInput } from '@app/types';
 import { ISendMailOptions } from '@nestjs-modules/mailer';
-import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnApplicationShutdown,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import OpenAI from 'openai';
@@ -8,6 +13,8 @@ import { of } from 'rxjs';
 
 @Injectable()
 export class GptService implements OnApplicationShutdown {
+  private readonly logger = new Logger(GptService.name);
+
   constructor(
     private readonly configService: ConfigService,
     @Inject('OUTBOX_SERVICE') private outboxService: ClientProxy,
@@ -45,7 +52,7 @@ export class GptService implements OnApplicationShutdown {
       this.composePrompt(input);
 
     if (!prompt) {
-      console.log('failed to generate prompt');
+      this.logger.log('failed to generate prompt');
       return of({});
     }
 
@@ -57,16 +64,16 @@ export class GptService implements OnApplicationShutdown {
         model: gptModel,
       });
     } catch (e) {
-      console.log(`chat completion failed ${e}`);
+      this.logger.log(`chat completion failed ${e}`);
       return of({});
     }
 
     // TODO : persistent cache response with TTL > job interval
 
-    console.log(`gpt service: ${chatCompletion.choices[0].message}`);
+    this.logger.log(`gpt service: ${chatCompletion.choices[0].message}`);
 
     if (!chatCompletion) {
-      console.log('no response received from gptService');
+      this.logger.log('no response received from gptService');
       return of({});
     }
 
@@ -75,7 +82,7 @@ export class GptService implements OnApplicationShutdown {
       chatCompletion,
     );
 
-    console.log('gptService: forwarding to outbox');
+    this.logger.log('gptService: forwarding to outbox');
 
     return this.outboxService.send(
       { cmd: 'sendEmailResponse' },
@@ -84,8 +91,9 @@ export class GptService implements OnApplicationShutdown {
   }
 
   onApplicationShutdown(signal?: string) {
-    console.log(`Shutting down gracefully ${signal}`);
-    console.log('Closing outbox client');
-    return this.outboxService.close();
+    this.logger.log(`Shutting down gracefully ${signal}`);
+    this.outboxService.close();
+    this.logger.log('Client closed');
+    process.exit(0);
   }
 }

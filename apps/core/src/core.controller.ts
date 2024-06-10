@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -12,7 +12,8 @@ import { GCPubSubContext } from 'nestjs-google-pubsub-microservice';
 
 @Controller()
 export class CoreController {
-  // private readonly logger = new Logger(CoreController.name);
+  private readonly logger = new Logger(CoreController.name);
+
   constructor(private readonly coreService: CoreService) {}
 
   @MessagePattern({ cmd: 'handleIncoming' })
@@ -27,8 +28,7 @@ export class CoreController {
       const completed = await this.coreService
         .handleIncoming(incomingMesageNotification)
         .catch((e) => {
-          console.error(e);
-          // this.logger.error(`Failed to forward message to outbox: ${e}`);
+          this.logger.error(e);
           return of({});
         });
 
@@ -37,10 +37,10 @@ export class CoreController {
         const channel = (context as RmqContext).getChannelRef();
         const originalMsg = context.getMessage();
         channel.ack(originalMsg);
-        console.debug('amqp acknowledged');
+        this.logger.debug('Job completed, sending ack');
       } else if (process.env.TRANSPORT === 'gcp') {
         context.getMessage().ack();
-        console.debug('gcp acknowledged');
+        this.logger.debug('Job completed, sending ack');
       }
 
       return completed;

@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -11,6 +11,8 @@ import { GCPubSubContext } from 'nestjs-google-pubsub-microservice';
 
 @Controller()
 export class OutboxController {
+  private readonly logger = new Logger(OutboxController.name);
+
   constructor(private readonly outboxService: OutboxService) {}
 
   @MessagePattern({ cmd: 'sendEmailResponse' })
@@ -27,10 +29,10 @@ export class OutboxController {
       const channel = (context as RmqContext).getChannelRef();
       const originalMsg = context.getMessage();
       channel.ack(originalMsg);
-      console.debug('amqp acknowledged');
+      this.logger.debug('Job completed, sending ack');
     } else if (process.env.TRANSPORT === 'gcp') {
       context.getMessage().ack();
-      console.debug('gcp acknowledged');
+      this.logger.debug('Job completed, sending ack');
     }
 
     return completed;
