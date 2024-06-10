@@ -1,6 +1,6 @@
-import { ISendMailOptions } from '@nestjs-modules/mailer';
+import { IncomingMessageDto, IncomingMessageNotificationDto } from '@app/dtos';
 
-export interface ICreateResponseParams {
-  prompt: string;
-  mailOptions: ISendMailOptions;
+export interface IGptServiceInput {
+  message: IncomingMessageNotificationDto | IncomingMessageDto;
+  thread: any;
 }

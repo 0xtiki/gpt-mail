@@ -12,7 +12,7 @@ for project in "${projects_to_build[@]}"; do
 done
 
 # 3. Run 'nest start --watch' command for the specified projects and echo PIDs
-projects_to_watch=("core" "inbox" "outbox" "gpt")
+projects_to_watch=("core" "inbox" "outbox" "gpt") # "outbox" "gpt"
 for project in "${projects_to_watch[@]}"; do
   echo "Starting project with watch: $project"
   nest start --watch $project &

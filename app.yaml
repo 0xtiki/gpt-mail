@@ -1,0 +1,29 @@
+runtime: nodejs18
+entrypoint: yarn start:prod:inbox
+env_variables:
+  NODE_ENV: prod
+  TRANSPORT: gcp
+  TRUST_PROXY: 1
+  GCP_PROJECT_ID: plated-mesh-423803-e0
+  GCP_CORE_SUBSCRIPTION: core-subscription
+  GCP_GPT_SUBSCRIPTION: gpt-subscription
+  GCP_OUTBOX_SUBSCRIPTION: outbox-subscription
+  GCP_CORE_TOPIC: core_queue
+  GCP_GPT_TOPIC: gpt_queue
+  GCP_OUTBOX_TOPIC: outbox_queue
+  GCP_REPLY_TOPIC: reply_queue
+  GCP_REPLY_SUBSCRIPTION: reply_subscription
+build_env_variables:
+  GOOGLE_NODE_RUN_SCRIPTS: yarn build:prod:inbox
+  NODE_ENV: prod
+  TRANSPORT: gcp
+  TRUST_PROXY: 1
+  GCP_PROJECT_ID: plated-mesh-423803-e0
+  GCP_CORE_SUBSCRIPTION: core-subscription
+  GCP_GPT_SUBSCRIPTION: gpt-subscription
+  GCP_OUTBOX_SUBSCRIPTION: outbox-subscription
+  GCP_CORE_TOPIC: core_queue
+  GCP_GPT_TOPIC: gpt_queue
+  GCP_OUTBOX_TOPIC: outbox_queue
+  GCP_REPLY_TOPIC: reply_queue
+  GCP_REPLY_SUBSCRIPTION: reply_subscription
