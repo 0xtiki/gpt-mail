@@ -1,0 +1,91 @@
+name: Deploy microservices to Production Environment
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Get NPM package version
+        id: npm_version
+        run: echo "NPM_PACKAGE_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_COMPUTE_ENGINE_SERVICE_ACCT_KEY_JSON }}
+
+      - name: Cleanup artifact registry
+        run: |
+          IMAGES=$(gcloud artifacts docker images list ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/gpt-mail-docker-repo --format="get(NAME)")
+          for IMAGE in $IMAGES; do
+            echo "Deleting image: $IMAGE"
+            gcloud artifacts docker images delete $IMAGE --quiet --delete-tags
+          done
+
+      - name: Create and push docker images
+        run: bash ./scripts/createDockerImages.sh
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Initialize Terraform
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Apply Terraform
+        working-directory: ./terraform
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_PROD: true
+          TF_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          TF_VAR_NODE_ENV: prod
+          TF_VAR_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TF_VAR_MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+          TF_VAR_MAILGUN_SENDING_DOMAIN: ${{ vars.MAILGUN_SENDING_DOMAIN }}
+          TF_VAR_MAILGUN_SIGNING_KEY: ${{ secrets.MAILGUN_SIGNING_KEY }}
+          TF_VAR_OUTBOX_EMAIL_USERNAME: ${{ vars.OUTBOX_EMAIL_USERNAME }}
+          TF_VAR_OUTBOX_EMAIL_TITLE: ${{ vars.OUTBOX_EMAIL_TITLE }}
+          TF_VAR_GPT_MAIL_ASSISTANT_USERNAME: ${{ vars.GPT_MAIL_ASSISTANT_USERNAME }}
+          TF_VAR_CLOUDAMQP_URL: ${{ vars.CLOUDAMQP_URL }}
+          TF_VAR_AMQP_CORE_INBOX_QUEUE: ${{ vars.AMQP_CORE_INBOX_QUEUE }}
+          TF_VAR_AMQP_GPT_QUEUE: ${{ vars.AMQP_GPT_QUEUE }}
+          TF_VAR_AMQP_OUTBOX_QUEUE: ${{ vars.AMQP_OUTBOX_QUEUE }}
+          TF_VAR_EMAIL_WHITELIST: ${{ vars.EMAIL_WHITELIST }}
+          TF_VAR_TRANSPORT: ${{ vars.TRANSPORT }}
+          TF_VAR_GCP_REGION: ${{ vars.GCP_REGION }}
+          TF_VAR_GCP_ZONE: ${{ vars.GCP_ZONE }}
+          TF_VAR_GCP_CORE_SUBSCRIPTION: ${{ vars.GCP_CORE_SUBSCRIPTION }}
+          TF_VAR_GCP_GPT_SUBSCRIPTION: ${{ vars.GCP_GPT_SUBSCRIPTION }}
+          TF_VAR_GCP_OUTBOX_SUBSCRIPTION: ${{ vars.GCP_OUTBOX_SUBSCRIPTION }}
+          TF_VAR_GCP_CORE_TOPIC: ${{ vars.GCP_CORE_TOPIC }}
+          TF_VAR_GCP_GPT_TOPIC: ${{ vars.GCP_GPT_TOPIC }}
+          TF_VAR_GCP_OUTBOX_TOPIC: ${{ vars.GCP_OUTBOX_TOPIC }}
+          TF_VAR_GCP_REPLY_TOPIC: ${{ vars.GCP_REPLY_TOPIC }}
+          TF_VAR_GCP_REPLY_SUBSCRIPTION: ${{ vars.GCP_REPLY_SUBSCRIPTION }}
+          TF_VAR_GCP_CLOUD_RUN_TIMEOUT: ${{ vars.GCP_CLOUD_RUN_TIMEOUT }}
+          TF_VAR_GCP_CLOUD_RUN_MAX_RETRIES: ${{ vars.GCP_CLOUD_RUN_MAX_RETRIES }}
+          TF_VAR_GCP_CLOUD_RUN_SCHEDULE: ${{ vars.GCP_CLOUD_RUN_SCHEDULE }}
+          TF_VAR_LOKI_URL: ${{ vars.LOKI_URL }}
+          TF_VAR_LOKI_USERNAME: ${{ secrets.LOKI_USERNAME }}
+          TF_VAR_LOKI_PASSWORD: ${{ secrets.LOKI_PASSWORD }}
+          TF_VAR_GCP_CLOUD_RUN_TIMEOUT: ${{ vars.GCP_CLOUD_RUN_TIMEOUT }}
+          TF_VAR_GCP_CLOUD_RUN_MAX_RETRIES: ${{ vars.GCP_CLOUD_RUN_MAX_RETRIES }}
+          TF_VAR_GCP_CLOUD_RUN_SCHEDULED: ${{ vars.GCP_CLOUD_RUN_SCHEDULE }}
+          TF_VAR_GCP_CLOUD_RUN_TASK_COUNT: ${{ vars.GCP_CLOUD_RUN_TASK_COUNT }}

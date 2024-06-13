@@ -1,0 +1,71 @@
+
+name: Deploy gateway app to Production Environment
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  deploy-gateway:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout repository and create workspace
+      uses: actions/checkout@v4
+
+    - name: Install jq
+      run: sudo apt-get install -y jq
+
+    - name: Get NPM package version
+      id: npm_version
+      run: echo "NPM_PACKAGE_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_APP_ENGINE_SERVICE_ACCT_KEY_JSON }}
+
+    - name: Deploy to App Engine
+      uses: google-github-actions/deploy-appengine@v2
+      with:
+        version: ${{ env.NPM_PACKAGE_VERSION }}
+        promote: true
+        build_env_vars: >
+          GOOGLE_NODE_RUN_SCRIPTS=yarn build:prod:inbox,
+          NODE_ENV=prod,
+          TRANSPORT=${{ vars.TRANSPORT }},
+          TRUST_PROXY=${{ vars.TRUST_PROXY }},
+          GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }},
+          GCP_CORE_SUBSCRIPTION=${{ vars.GCP_CORE_SUBSCRIPTION }},
+          GCP_GPT_SUBSCRIPTION=${{ vars.GCP_GPT_SUBSCRIPTION }},
+          GCP_OUTBOX_SUBSCRIPTION=${{ vars.GCP_OUTBOX_SUBSCRIPTION }},
+          GCP_CORE_TOPIC=${{ vars.GCP_CORE_TOPIC }},
+          GCP_GPT_TOPIC=${{ vars.GCP_GPT_TOPIC }},
+          GCP_OUTBOX_TOPIC=${{ vars.GCP_OUTBOX_TOPIC }},
+          GCP_REPLY_TOPIC=${{ vars.GCP_REPLY_TOPIC }},
+          GCP_REPLY_SUBSCRIPTION=${{ vars.GCP_REPLY_SUBSCRIPTION }},
+          LOKI_URL=${{ vars.LOKI_URL }},
+          LOKI_USERNAME=${{ vars.LOKI_USERNAME }},
+          LOKI_PASSWORD=${{ vars.LOKI_PASSWORD }}
+        env_vars: >
+          GOOGLE_NODE_RUN_SCRIPTS=yarn build:prod:inbox,
+          NODE_ENV=prod,
+          TRANSPORT=${{ vars.TRANSPORT }},
+          TRUST_PROXY=${{ vars.TRUST_PROXY }},
+          GCP_PROJECT_ID=${{ vars.GCP_PROJECT_ID }},
+          GCP_CORE_SUBSCRIPTION=${{ vars.GCP_CORE_SUBSCRIPTION }},
+          GCP_GPT_SUBSCRIPTION=${{ vars.GCP_GPT_SUBSCRIPTION }},
+          GCP_OUTBOX_SUBSCRIPTION=${{ vars.GCP_OUTBOX_SUBSCRIPTION }},
+          GCP_CORE_TOPIC=${{ vars.GCP_CORE_TOPIC }},
+          GCP_GPT_TOPIC=${{ vars.GCP_GPT_TOPIC }},
+          GCP_OUTBOX_TOPIC=${{ vars.GCP_OUTBOX_TOPIC }},
+          GCP_REPLY_TOPIC=${{ vars.GCP_REPLY_TOPIC }},
+          GCP_REPLY_SUBSCRIPTION=${{ vars.GCP_REPLY_SUBSCRIPTION }},
+          LOKI_URL=${{ vars.LOKI_URL }},
+          LOKI_USERNAME=${{ vars.LOKI_USERNAME }},
+          LOKI_PASSWORD=${{ vars.LOKI_PASSWORD }}
+
+    - name: 'output'
+      run: 'curl "${{ steps.deploy.outputs.version_url }}"'
