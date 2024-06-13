@@ -5,11 +5,11 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class InboxService {
-  constructor(@Inject('CORE_SERVICE') private client: ClientProxy) {}
+  constructor(@Inject('CORE_SERVICE') private coreServie: ClientProxy) {}
   appendToCoreIncomingQueue(
     messageNotification: IncomingMessageNotificationDto,
   ): Observable<any> {
-    return this.client.send(
+    return this.coreServie.send(
       { cmd: 'handleIncoming' },
       JSON.stringify(messageNotification),
     );

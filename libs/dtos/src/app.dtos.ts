@@ -17,3 +17,23 @@ export class IncomingMessageNotificationDto {
   'message-headers': string; // A list of MIME headers dumped to a JSON string (The order of headers is preserved)
   'Content-id-map': string;
 }
+
+export class IncomingMessageDto {
+  subject: string; // "\"Mailgun is awesome\"",
+  sender: string; // "foo.bar@my-domain.com",
+  'stripped-html': string; // "<html>This is some html</html>",
+  'X-Mailgun-Tag': string; // "earth",
+  recipients: string; // "cool.barr@cool.com, bar.baz@gmail.com",
+  'Mime-Version': string; // "1.0",
+  from: string; // "foo.bar@my-domain.com",
+  'Body-Plain': string; // "This is some html",
+  Subject: string; // "\"Mailgun is awesome\"",
+  To: string; // "cool.barr@cool.com, bar.baz@gmail.com",
+  content_type: string; // "text/html; charset=ascii",
+  From: string; // "foo.bar@my-domain.com",
+  content_transfer_encoding: string; // "7bit",
+  'Message-Id': string; // "<xxxxxxxxxxxxx.111111111111111@my-domain.com>",
+  'Message-Headers': string[][];
+  'stripped-text': string; // "This is some html",
+  'Body-HTML': string; // "<html>This is some html</html>"
+}

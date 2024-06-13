@@ -1,20 +1,20 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Logger } from '@nestjs/common';
 import { IncomingMessageNotificationDto } from '@app/dtos';
 import { InboxService } from './inbox.service';
+import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class InboxController {
-  constructor(private readonly inboxService: InboxService) {}
+  private readonly logger = new Logger(InboxController.name);
 
-  // TODO: clean up
-  // @Get('create/:email')
-  // createEmailRoute(@Param('email') email: string) {
-  //   return this.client.send({ cmd: 'create-email-route' }, email);
-  // }
+  constructor(
+    private readonly inboxService: InboxService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('inbox')
   receiveEmail(@Body() messageNotification: IncomingMessageNotificationDto) {
-    console.log(`Received mail from ${messageNotification.from}`);
+    this.logger.log(`Received mail from ${messageNotification.from}`);
     return this.inboxService.appendToCoreIncomingQueue(messageNotification);
   }
 }

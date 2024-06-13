@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { GptModule } from './gpt.module';
 import { gptConfig } from '@app/config';
+import { Logger as PinoLogger } from 'nestjs-pino';
 
 async function bootstrap() {
   const transportConfig = gptConfig().transportConfig;
@@ -9,10 +10,11 @@ async function bootstrap() {
     GptModule,
     transportConfig,
   );
+
+  app.useLogger(app.get(PinoLogger));
+
+  app.enableShutdownHooks();
+
   await app.listen();
-  console.log(
-    'GPT Microservice transport config:',
-    JSON.stringify(transportConfig.transport),
-  );
 }
 bootstrap();

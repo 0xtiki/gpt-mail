@@ -1,12 +1,28 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientProxyFactory } from '@nestjs/microservices';
 import { InboxController } from './inbox.controller';
 import { InboxService } from './inbox.service';
-import { coreConfig } from '@app/config';
+import { coreConfig, inboxConfig } from '@app/config';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
-  imports: [ConfigModule.forRoot({ load: [coreConfig] })],
+  imports: [
+    ConfigModule.forRoot({ load: [coreConfig, inboxConfig] }),
+    LoggerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        const { transport, gcpTaskCount, gcpTaskIndex } =
+          configService.get('inbox').context;
+        return {
+          pinoHttp: {
+            name: `InboxService ${gcpTaskCount ? '(' + transport + ' -Task: ' + gcpTaskIndex + '/' + gcpTaskCount + ')' : '(' + transport + ')'}`,
+            transport: configService.get('inbox').pinoTransport,
+          },
+        };
+      },
+    }),
+  ],
   controllers: [InboxController],
   providers: [
     InboxService,
@@ -14,8 +30,8 @@ import { coreConfig } from '@app/config';
       provide: 'CORE_SERVICE',
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) =>
-        ClientProxyFactory.create(configService.get('core').transportConfig),
+        configService.get('core').client,
     },
   ],
 })
-export class ClientModule {}
+export class InboxModule {}
