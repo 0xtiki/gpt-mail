@@ -54,7 +54,7 @@ jobs:
         run: terraform apply -auto-approve
         env:
           TF_VAR_PROD: true
-          TF_VAR_GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          TF_VAR_GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
           TF_VAR_NODE_ENV: prod
           TF_VAR_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           TF_VAR_MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
@@ -63,7 +63,7 @@ jobs:
           TF_VAR_OUTBOX_EMAIL_USERNAME: ${{ vars.OUTBOX_EMAIL_USERNAME }}
           TF_VAR_OUTBOX_EMAIL_TITLE: ${{ vars.OUTBOX_EMAIL_TITLE }}
           TF_VAR_GPT_MAIL_ASSISTANT_USERNAME: ${{ vars.GPT_MAIL_ASSISTANT_USERNAME }}
-          TF_VAR_CLOUDAMQP_URL: ${{ vars.CLOUDAMQP_URL }}
+          TF_VAR_CLOUDAMQP_URL: ${{ secrets.CLOUDAMQP_URL }}
           TF_VAR_AMQP_CORE_INBOX_QUEUE: ${{ vars.AMQP_CORE_INBOX_QUEUE }}
           TF_VAR_AMQP_GPT_QUEUE: ${{ vars.AMQP_GPT_QUEUE }}
           TF_VAR_AMQP_OUTBOX_QUEUE: ${{ vars.AMQP_OUTBOX_QUEUE }}
@@ -82,10 +82,9 @@ jobs:
           TF_VAR_GCP_CLOUD_RUN_TIMEOUT: ${{ vars.GCP_CLOUD_RUN_TIMEOUT }}
           TF_VAR_GCP_CLOUD_RUN_MAX_RETRIES: ${{ vars.GCP_CLOUD_RUN_MAX_RETRIES }}
           TF_VAR_GCP_CLOUD_RUN_SCHEDULE: ${{ vars.GCP_CLOUD_RUN_SCHEDULE }}
+          TF_VAR_GCP_CLOUD_RUN_TASK_COUNT: ${{ vars.GCP_CLOUD_RUN_TASK_COUNT }}
           TF_VAR_LOKI_URL: ${{ vars.LOKI_URL }}
           TF_VAR_LOKI_USERNAME: ${{ secrets.LOKI_USERNAME }}
           TF_VAR_LOKI_PASSWORD: ${{ secrets.LOKI_PASSWORD }}
           TF_VAR_GCP_CLOUD_RUN_TIMEOUT: ${{ vars.GCP_CLOUD_RUN_TIMEOUT }}
           TF_VAR_GCP_CLOUD_RUN_MAX_RETRIES: ${{ vars.GCP_CLOUD_RUN_MAX_RETRIES }}
-          TF_VAR_GCP_CLOUD_RUN_SCHEDULED: ${{ vars.GCP_CLOUD_RUN_SCHEDULE }}
-          TF_VAR_GCP_CLOUD_RUN_TASK_COUNT: ${{ vars.GCP_CLOUD_RUN_TASK_COUNT }}
