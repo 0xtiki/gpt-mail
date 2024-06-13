@@ -47,8 +47,8 @@ jobs:
           GCP_REPLY_TOPIC=${{ vars.GCP_REPLY_TOPIC }},
           GCP_REPLY_SUBSCRIPTION=${{ vars.GCP_REPLY_SUBSCRIPTION }},
           LOKI_URL=${{ vars.LOKI_URL }},
-          LOKI_USERNAME=${{ vars.LOKI_USERNAME }},
-          LOKI_PASSWORD=${{ vars.LOKI_PASSWORD }},
+          LOKI_USERNAME=${{ secrets.LOKI_USERNAME }},
+          LOKI_PASSWORD=${{ secrets.LOKI_PASSWORD }},
           AMQP_CORE_INBOX_QUEUE=${{ vars.AMQP_CORE_INBOX_QUEUE }},
           AMQP_GPT_QUEUE=${{ vars.AMQP_GPT_QUEUE }},
           AMQP_OUTBOX_QUEUE=${{ vars.AMQP_OUTBOX_QUEUE }},
@@ -68,12 +68,12 @@ jobs:
           GCP_REPLY_TOPIC=${{ vars.GCP_REPLY_TOPIC }},
           GCP_REPLY_SUBSCRIPTION=${{ vars.GCP_REPLY_SUBSCRIPTION }},
           LOKI_URL=${{ vars.LOKI_URL }},
-          LOKI_USERNAME=${{ vars.LOKI_USERNAME }},
-          LOKI_PASSWORD=${{ vars.LOKI_PASSWORD }},
+          LOKI_USERNAME=${{ secrets.LOKI_USERNAME }},
+          LOKI_PASSWORD=${{ secrets.LOKI_PASSWORD }},
           AMQP_CORE_INBOX_QUEUE=${{ vars.AMQP_CORE_INBOX_QUEUE }},
           AMQP_GPT_QUEUE=${{ vars.AMQP_GPT_QUEUE }},
           AMQP_OUTBOX_QUEUE=${{ vars.AMQP_OUTBOX_QUEUE }},
           CLOUDAMQP_URL=${{ secrets.CLOUDAMQP_URL }}
 
-    - name: 'output'
-      run: 'curl "${{ steps.deploy.outputs.version_url }}"'
+    # - name: 'output'
+    #   run: 'curl "${{ steps.deploy.outputs.version_url }}"'
