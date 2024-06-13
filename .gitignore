@@ -63,4 +63,4 @@ gha-creds-*.json
 
 terraform.tfstate*
 
-/.terraform
+**/.terraform
