@@ -49,10 +49,10 @@ jobs:
           LOKI_URL=${{ vars.LOKI_URL }},
           LOKI_USERNAME=${{ vars.LOKI_USERNAME }},
           LOKI_PASSWORD=${{ vars.LOKI_PASSWORD }},
-          AMQP_CORE_INBOX_QUEUE: ${{ vars.AMQP_CORE_INBOX_QUEUE }},
-          AMQP_GPT_QUEUE: ${{ vars.AMQP_GPT_QUEUE }},
-          AMQP_OUTBOX_QUEUE: ${{ vars.AMQP_OUTBOX_QUEUE }},
-          CLOUDAMQP_URL: ${{ secrets.CLOUDAMQP_URL }}
+          AMQP_CORE_INBOX_QUEUE=${{ vars.AMQP_CORE_INBOX_QUEUE }},
+          AMQP_GPT_QUEUE=${{ vars.AMQP_GPT_QUEUE }},
+          AMQP_OUTBOX_QUEUE=${{ vars.AMQP_OUTBOX_QUEUE }},
+          CLOUDAMQP_URL=${{ secrets.CLOUDAMQP_URL }}
         env_vars: >
           GOOGLE_NODE_RUN_SCRIPTS=yarn build:prod:inbox,
           NODE_ENV=prod,
@@ -70,10 +70,10 @@ jobs:
           LOKI_URL=${{ vars.LOKI_URL }},
           LOKI_USERNAME=${{ vars.LOKI_USERNAME }},
           LOKI_PASSWORD=${{ vars.LOKI_PASSWORD }},
-          AMQP_CORE_INBOX_QUEUE: ${{ vars.AMQP_CORE_INBOX_QUEUE }},
-          AMQP_GPT_QUEUE: ${{ vars.AMQP_GPT_QUEUE }},
-          AMQP_OUTBOX_QUEUE: ${{ vars.AMQP_OUTBOX_QUEUE }},
-          CLOUDAMQP_URL: ${{ secrets.CLOUDAMQP_URL }}
+          AMQP_CORE_INBOX_QUEUE=${{ vars.AMQP_CORE_INBOX_QUEUE }},
+          AMQP_GPT_QUEUE=${{ vars.AMQP_GPT_QUEUE }},
+          AMQP_OUTBOX_QUEUE=${{ vars.AMQP_OUTBOX_QUEUE }},
+          CLOUDAMQP_URL=${{ secrets.CLOUDAMQP_URL }}
 
     - name: 'output'
       run: 'curl "${{ steps.deploy.outputs.version_url }}"'
