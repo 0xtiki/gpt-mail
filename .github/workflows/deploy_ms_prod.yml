@@ -86,5 +86,3 @@ jobs:
           TF_VAR_LOKI_URL: ${{ vars.LOKI_URL }}
           TF_VAR_LOKI_USERNAME: ${{ secrets.LOKI_USERNAME }}
           TF_VAR_LOKI_PASSWORD: ${{ secrets.LOKI_PASSWORD }}
-          TF_VAR_GCP_CLOUD_RUN_TIMEOUT: ${{ vars.GCP_CLOUD_RUN_TIMEOUT }}
-          TF_VAR_GCP_CLOUD_RUN_MAX_RETRIES: ${{ vars.GCP_CLOUD_RUN_MAX_RETRIES }}
