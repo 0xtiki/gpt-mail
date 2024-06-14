@@ -18,7 +18,7 @@ curl -X POST https://plated-mesh-423803-e0.uc.r.appspot.com/inbox -H "Content-Ty
   "Content-id-map": "{}"
 }'
 
-curl -X POST http://localhost:3000/inbox -H "Content-Type: application/json" -d '{
+curl -X POST https://plated-mesh-423803-e0.uc.r.appspot.com/inbox -H "Content-Type: application/json" -d '{
   "domain": "example.com",
   "recipient": "recipient@example.com",
   "sender": "example@protonmail.com",
