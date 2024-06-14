@@ -22,7 +22,7 @@ fi
 
 # Check if GCP_PROJECT_ID and GCP_REGION are set
 if [[ -z "$GCP_PROJECT_ID" || -z "$GCP_REGION" ]]; then
-  echo "GCP_PROJECT_ID or GCP_REGION is not set in .env.terraform"
+  echo "GCP_PROJECT_ID or GCP_REGION is not set"
   exit 1
 fi
 
