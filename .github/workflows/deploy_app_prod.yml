@@ -54,7 +54,7 @@ jobs:
           AMQP_OUTBOX_QUEUE=${{ vars.AMQP_OUTBOX_QUEUE }},
           CLOUDAMQP_URL=${{ secrets.CLOUDAMQP_URL }}
         env_vars: >
-          GOOGLE_NODE_RUN_SCRIPTS=yarn build:prod:inbox,
+          GOOGLE_NODE_RUN_SCRIPTS=yarn start:prod:inbox,
           NODE_ENV=prod,
           TRANSPORT=${{ vars.TRANSPORT }},
           TRUST_PROXY=${{ vars.TRUST_PROXY }},

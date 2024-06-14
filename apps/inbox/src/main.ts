@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(InboxModule);
   app.useLogger(app.get(PinoLogger));
   const logger = new Logger();
-  process.env.TRUST_PROXY ?? app.set('trust proxy', 1);
+  process.env.TRUST_PROXY ?? app.set('trust proxy', true);
   const port = process.env.PORT
     ? Number(process.env.PORT)
     : Number(process.env.INBOX_SERVICE_PORT);
