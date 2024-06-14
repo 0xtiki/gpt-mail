@@ -172,9 +172,9 @@ locals {
     ["GCP_CLOUD_RUN_SCHEDULE", var.GCP_CLOUD_RUN_SCHEDULE],
     ["GCP_CLOUD_RUN_TASK_COUNT", var.GCP_CLOUD_RUN_TASK_COUNT],
   ]
-  dev = [for line in split("\n", file("../.env.terraform")) : regexall("([^=]+)=(.*)", line)[0]]
+  # dev = [for line in split("\n", file("../.env.terraform")) : regexall("([^=]+)=(.*)", line)[0]]
   envs = {
-    for tuple in (var.PROD ? local.prod : local.dev) : tuple[0] => tuple[1]
+    for tuple in (var.PROD ? local.prod : [for line in split("\n", file("../.env.terraform")) : regexall("([^=]+)=(.*)", line)[0]]) : tuple[0] => tuple[1]
   }
 }
 
