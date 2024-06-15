@@ -1,17 +1,26 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { IncomingMessageNotificationDto } from '@app/dtos';
 import { ClientProxy } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
-export class InboxService {
+export class InboxService implements OnModuleDestroy {
+  private readonly logger = new Logger(InboxService.name);
+
   constructor(@Inject('CORE_SERVICE') private coreServie: ClientProxy) {}
   appendToCoreIncomingQueue(
     messageNotification: IncomingMessageNotificationDto,
-  ): Observable<any> {
-    return this.coreServie.send(
-      { cmd: 'handleIncoming' },
-      JSON.stringify(messageNotification),
+  ): Promise<any> {
+    return lastValueFrom(
+      this.coreServie.send(
+        { cmd: 'handleIncoming' },
+        JSON.stringify(messageNotification),
+      ),
     );
+  }
+
+  onModuleDestroy() {
+    this.coreServie.close();
+    this.logger.debug('Client closed');
   }
 }

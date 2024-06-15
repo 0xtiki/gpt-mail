@@ -18,6 +18,7 @@ import { LoggerModule } from 'nestjs-pino';
           pinoHttp: {
             name: `InboxService ${gcpTaskCount ? '(' + transport + ' -Task: ' + gcpTaskIndex + '/' + gcpTaskCount + ')' : '(' + transport + ')'}`,
             transport: configService.get('inbox').pinoTransport,
+            level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'trace',
           },
         };
       },

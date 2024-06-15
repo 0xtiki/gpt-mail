@@ -1,24 +1,29 @@
-import {
-  Inject,
-  Injectable,
-  OnApplicationShutdown,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { IncomingMessageDto, IncomingMessageNotificationDto } from '@app/dtos';
 import crypto from 'crypto';
 import { ClientProxy } from '@nestjs/microservices';
-import { Observable, catchError, firstValueFrom, of } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  firstValueFrom,
+  lastValueFrom,
+  of,
+} from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
 
 @Injectable()
-export class CoreService implements OnApplicationShutdown {
+export class CoreService implements OnModuleDestroy {
   private readonly logger = new Logger(CoreService.name);
 
   constructor(
     @Inject('GPT_SERVICE') private gptService: ClientProxy,
     private readonly httpService: HttpService,
   ) {}
+
+  onModuleDestroy() {
+    this.gptService.close();
+  }
 
   verify(
     signingKey: string,
@@ -63,11 +68,11 @@ export class CoreService implements OnApplicationShutdown {
         .pipe(
           catchError((e: AxiosError) => {
             this.logger.error(e.response.data);
-            throw 'An error happened!';
+            throw 'Error fetching email from';
           }),
         ),
     );
-    this.logger.log(data);
+    this.logger.verbose(data);
     return data;
   }
 
@@ -91,55 +96,51 @@ export class CoreService implements OnApplicationShutdown {
 
   async handleIncoming(
     incomingMessage: IncomingMessageNotificationDto,
-  ): Promise<Observable<any>> {
+  ): Promise<Observable<{ ack: boolean }>> {
     const verified = this.validateIncoming(incomingMessage);
 
     if (!verified) {
-      this.logger.log('email verification failed');
-      return of({});
+      this.logger.warn('Email verification failed');
+      return of({ ack: true });
     }
 
     const authenticated = this.authenticate(incomingMessage.sender);
 
     if (!authenticated) {
-      this.logger.log('email authentication failed');
-      return of({});
+      this.logger.warn('Email authentication failed');
+      return of({ ack: true });
     }
 
     const message = await this.fetchMessage(incomingMessage['message-url']);
 
     if (!message) {
-      this.logger.log('fetching message failed');
-      return of({});
+      this.logger.warn('Fetching message from mg failed');
+      return of({ ack: false });
     }
 
     const thread = await this.getThread(message);
 
     if (!thread) {
-      this.logger.log('fetching thread failed');
-      return of({});
+      this.logger.warn('fetching thread failed');
+      return of({ ack: false });
     }
 
     const outMessage =
-      process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'qa'
-        ? incomingMessage
-        : message;
+      process.env.NODE_ENV !== 'prod' ? incomingMessage : message;
 
     try {
-      return this.gptService.send(
-        { cmd: 'generateGptResponse' },
-        JSON.stringify({ message: outMessage, thread }),
+      this.logger.error('HERE');
+      lastValueFrom(
+        this.gptService.send(
+          { cmd: 'generateGptResponse' },
+          JSON.stringify({ message: outMessage, thread }),
+        ),
       );
+      return of({ ack: true });
     } catch (e) {
-      this.logger.log(`gpt service error ${e}`);
-      return of({});
+      this.logger.error('GPT service error');
+      this.logger.verbose(e);
+      return of({ ack: false });
     }
-  }
-
-  onApplicationShutdown(signal?: string) {
-    this.logger.log(`Shutting down gracefully ${signal}`);
-    this.gptService.close();
-    this.logger.log('Client closed');
-    process.exit(0);
   }
 }

@@ -1,18 +1,13 @@
 import { IGptServiceInput } from '@app/types';
 import { ISendMailOptions } from '@nestjs-modules/mailer';
-import {
-  Inject,
-  Injectable,
-  Logger,
-  OnApplicationShutdown,
-} from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import OpenAI from 'openai';
-import { of } from 'rxjs';
+import { Observable, lastValueFrom, of } from 'rxjs';
 
 @Injectable()
-export class GptService implements OnApplicationShutdown {
+export class GptService implements OnModuleDestroy {
   private readonly logger = new Logger(GptService.name);
 
   constructor(
@@ -47,13 +42,16 @@ export class GptService implements OnApplicationShutdown {
     ];
   }
 
-  async handleIncoming(input: IGptServiceInput, gptModel: string) {
+  async handleIncoming(
+    input: IGptServiceInput,
+    gptModel: string,
+  ): Promise<Observable<{ ack: boolean }>> {
     const prompt: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
       this.composePrompt(input);
 
     if (!prompt) {
-      this.logger.log('failed to generate prompt');
-      return of({});
+      this.logger.warn('failed to generate prompt');
+      return of({ ack: false });
     }
 
     let chatCompletion: OpenAI.Chat.Completions.ChatCompletion;
@@ -64,17 +62,20 @@ export class GptService implements OnApplicationShutdown {
         model: gptModel,
       });
     } catch (e) {
-      this.logger.log(`chat completion failed ${e}`);
-      return of({});
+      this.logger.error('Chat completion failed');
+      this.logger.verbose(e);
+      return of({ ack: true });
     }
 
     // TODO : persistent cache response with TTL > job interval
 
-    this.logger.log(`gpt service: ${chatCompletion.choices[0].message}`);
+    this.logger.log(
+      `Prompt: ${prompt} \nChat response: ${chatCompletion.choices[0].message}`,
+    );
 
     if (!chatCompletion) {
-      this.logger.log('no response received from gptService');
-      return of({});
+      this.logger.warn('No response received from gptService');
+      return of({ ack: false });
     }
 
     const sendMailOptions: ISendMailOptions = this.composeResponseEmail(
@@ -82,18 +83,24 @@ export class GptService implements OnApplicationShutdown {
       chatCompletion,
     );
 
-    this.logger.log('gptService: forwarding to outbox');
+    this.logger.log('Forwarding message to outbox');
 
-    return this.outboxService.send(
-      { cmd: 'sendEmailResponse' },
-      JSON.stringify(sendMailOptions),
-    );
+    try {
+      lastValueFrom(
+        this.outboxService.send(
+          { cmd: 'sendEmailResponse' },
+          JSON.stringify(sendMailOptions),
+        ),
+      );
+      return of({ ack: true });
+    } catch (e) {
+      this.logger.error('Outbox service error');
+      this.logger.verbose(e);
+      return of({ ack: false });
+    }
   }
 
-  onApplicationShutdown(signal?: string) {
-    this.logger.log(`Shutting down gracefully ${signal}`);
+  onModuleDestroy() {
     this.outboxService.close();
-    this.logger.log('Client closed');
-    process.exit(0);
   }
 }

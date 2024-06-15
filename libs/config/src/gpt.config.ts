@@ -74,7 +74,7 @@ export const gptConfig = registerAs(
             )
           : new GCPubSubClient({
               replyTopic: process.env.GCP_REPLY_TOPIC,
-              replySubscription: process.env.GCP_REPLY_SUBSCRIPTION,
+              replySubscription: process.env.GCP_GPT_SUBSCRIPTION,
               topic: process.env.GCP_GPT_TOPIC,
               subscription: process.env.GCP_GPT_SUBSCRIPTION,
               client: {

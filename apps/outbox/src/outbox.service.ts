@@ -1,8 +1,8 @@
-import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
-export class OutboxService implements OnApplicationShutdown {
+export class OutboxService {
   private readonly logger = new Logger(OutboxService.name);
 
   constructor(private readonly mailerService: MailerService) {}
@@ -28,10 +28,5 @@ export class OutboxService implements OnApplicationShutdown {
     this.logger.log(`Email sending status: ${sendingStatus}`);
 
     return sendingStatus;
-  }
-
-  onApplicationShutdown(signal?: string) {
-    this.logger.log(`Shutting down gracefully ${signal}`);
-    process.exit(0);
   }
 }

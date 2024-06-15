@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnApplicationShutdown } from '@nestjs/common';
 import { GptController } from './gpt.controller';
 import { GptService } from './gpt.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -20,6 +20,7 @@ import { LoggerModule } from 'nestjs-pino';
           pinoHttp: {
             name: `GptService ${gcpTaskCount ? '(' + transport + ' -Task: ' + gcpTaskIndex + '/' + gcpTaskCount + ')' : '(' + transport + ')'}`,
             transport: configService.get('gpt').pinoTransport,
+            level: process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'trace',
           },
         };
       },
@@ -36,4 +37,8 @@ import { LoggerModule } from 'nestjs-pino';
     },
   ],
 })
-export class GptModule {}
+export class GptModule implements OnApplicationShutdown {
+  onApplicationShutdown() {
+    console.debug('exiting');
+  }
+}

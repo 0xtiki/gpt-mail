@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Logger, HttpStatus } from '@nestjs/common';
 import { IncomingMessageNotificationDto } from '@app/dtos';
 import { InboxService } from './inbox.service';
 
@@ -9,8 +9,11 @@ export class InboxController {
   constructor(private readonly inboxService: InboxService) {}
 
   @Post('inbox')
-  receiveEmail(@Body() messageNotification: IncomingMessageNotificationDto) {
+  async receiveEmail(
+    @Body() messageNotification: IncomingMessageNotificationDto,
+  ) {
     this.logger.log(`Received mail from ${messageNotification.from}`);
-    return this.inboxService.appendToCoreIncomingQueue(messageNotification);
+    this.inboxService.appendToCoreIncomingQueue(messageNotification);
+    return HttpStatus.ACCEPTED;
   }
 }

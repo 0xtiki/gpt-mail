@@ -18,7 +18,7 @@ curl -X POST https://plated-mesh-423803-e0.uc.r.appspot.com/inbox -H "Content-Ty
   "Content-id-map": "{}"
 }'
 
-curl -X POST https://plated-mesh-423803-e0.uc.r.appspot.com/inbox -H "Content-Type: application/json" -d '{
+curl -X POST http://localhost:3000/inbox -H "Content-Type: application/json" -d '{
   "domain": "example.com",
   "recipient": "recipient@example.com",
   "sender": "example@protonmail.com",
@@ -37,6 +37,7 @@ curl -X POST https://plated-mesh-423803-e0.uc.r.appspot.com/inbox -H "Content-Ty
   "message-headers": "{\"Received\":[\"from mail.example.com (mail.example.com [192.0.2.1]) by smtp.example.com with ESMTP id abc123\"],\"Subject\":\"Test Subject\"}",
   "Content-id-map": "{}"
 }'
+
 
 curl -X POST http://localhost:3000/inbox -H "Content-Type: application/json" -d '{
   "message-url": "http://example.com/message/12345",
