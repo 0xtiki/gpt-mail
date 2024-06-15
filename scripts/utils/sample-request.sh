@@ -38,6 +38,7 @@ curl -X POST http://localhost:3000/inbox -H "Content-Type: application/json" -d 
   "Content-id-map": "{}"
 }'
 
+https://plated-mesh-423803-e0.uc.r.appspot.com/inbox
 
 curl -X POST http://localhost:3000/inbox -H "Content-Type: application/json" -d '{
   "message-url": "http://example.com/message/12345",

@@ -11,6 +11,8 @@ export class InboxService implements OnModuleDestroy {
   appendToCoreIncomingQueue(
     messageNotification: IncomingMessageNotificationDto,
   ): Promise<any> {
+    this.logger.debug(messageNotification['message-url']);
+    this.logger.verbose(messageNotification);
     return lastValueFrom(
       this.coreServie.send(
         { cmd: 'handleIncoming' },
