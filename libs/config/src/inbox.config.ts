@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+import { LokiLogLevel } from 'pino-loki';
 
 export const inboxConfig = registerAs(
   'inbox',
@@ -18,6 +19,14 @@ export const inboxConfig = registerAs(
                 labels: {
                   app: 'inbox',
                   env: process.env.NODE_ENV,
+                },
+                levelMap: {
+                  10: LokiLogLevel.Debug,
+                  20: LokiLogLevel.Debug,
+                  30: LokiLogLevel.Info,
+                  40: LokiLogLevel.Warning,
+                  50: LokiLogLevel.Error,
+                  60: LokiLogLevel.Critical,
                 },
                 replaceTimestamp: true,
                 batching: true,

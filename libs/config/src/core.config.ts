@@ -13,6 +13,7 @@ import {
   GCPubSubClient,
   GCPubSubServer,
 } from 'nestjs-google-pubsub-microservice';
+import { LokiLogLevel } from 'pino-loki';
 
 const transportCoreOptions = ():
   | TcpOptions
@@ -93,6 +94,14 @@ export const coreConfig = registerAs(
                 labels: {
                   app: 'core',
                   env: process.env.NODE_ENV,
+                },
+                levelMap: {
+                  10: LokiLogLevel.Debug,
+                  20: LokiLogLevel.Debug,
+                  30: LokiLogLevel.Info,
+                  40: LokiLogLevel.Warning,
+                  50: LokiLogLevel.Error,
+                  60: LokiLogLevel.Critical,
                 },
                 replaceTimestamp: true,
                 batching: true,
