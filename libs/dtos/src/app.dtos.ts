@@ -15,16 +15,13 @@ export class IncomingMessageNotificationDto {
   'stripped-html': string; // The HTML version of the message, without the quoted parts
   attachments: string; // The string that contains a JSON list of metadata objects, one for each attachment.
   @IsUrl({
-    protocols: process.env.NODE_ENV !== 'prod' ? ['http', 'https'] : ['https'],
+    protocols: process.env.NODE_ENV === 'prod' ? ['https'] : ['http', 'https'],
     allow_underscores: true,
+    require_protocol: true,
     host_whitelist:
-      process.env.NODE_ENV !== 'prod'
-        ? ['example.com']
-        : [
-            'mailgun.net',
-            'storage-us-west1.api.mailgun.net',
-            'api.mailgun.net',
-          ],
+      process.env.NODE_ENV === 'prod'
+        ? ['mailgun.net', 'storage-us-east4.api.mailgun.net', 'api.mailgun.net']
+        : ['example.com', 'storage-us-east4.api.mailgun.net'],
   })
   'message-url': string; // A URL that you can use to get and/or delete the message. Only present in the payload posted to the notification URL
   timestamp: number; // The number of seconds passed since January 1, 1970 (See Securing Webhooks)
