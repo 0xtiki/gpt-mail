@@ -8,7 +8,7 @@ import { Logger as PinoLogger } from 'nestjs-pino';
 performance.mark('start');
 if (process.env.GCP_CLOUD_RUN_TIMEOUT) {
   const lifetime =
-    Number(process.env.GCP_CLOUD_RUN_TIMEOUT.replace(/\D/g, '')) - 5;
+    Number(process.env.GCP_CLOUD_RUN_TIMEOUT.replace(/\D/g, '')) - 10;
   setTimeout(function () {
     console.debug(
       `App shutting down after ${performance.now() - performance.getEntriesByName('start')[0].startTime} ms`,
