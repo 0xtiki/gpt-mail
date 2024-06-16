@@ -77,7 +77,7 @@ export const outboxConfig = registerAs(
             )
           : new GCPubSubClient({
               replyTopic: process.env.GCP_REPLY_TOPIC,
-              replySubscription: process.env.GCP_OUTBOX_SUBSCRIPTION,
+              replySubscription: process.env.GCP_REPLY_SUBSCRIPTION,
               topic: process.env.GCP_OUTBOX_TOPIC,
               subscription: process.env.GCP_OUTBOX_SUBSCRIPTION,
               client: {

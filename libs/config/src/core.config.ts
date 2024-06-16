@@ -75,7 +75,7 @@ export const coreConfig = registerAs(
             )
           : new GCPubSubClient({
               replyTopic: process.env.GCP_REPLY_TOPIC,
-              replySubscription: process.env.GCP_CORE_SUBSCRIPTION,
+              replySubscription: process.env.GCP_REPLY_SUBSCRIPTION,
               topic: process.env.GCP_CORE_TOPIC,
               subscription: process.env.GCP_CORE_SUBSCRIPTION,
               client: {
