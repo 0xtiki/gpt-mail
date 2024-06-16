@@ -20,8 +20,8 @@ export class IncomingMessageNotificationDto {
     require_protocol: true,
     host_whitelist:
       process.env.NODE_ENV === 'prod'
-        ? ['mailgun.net', 'storage-us-east4.api.mailgun.net', 'api.mailgun.net']
-        : ['example.com', 'storage-us-east4.api.mailgun.net'],
+        ? [/^.*api.mailgun\.net$/]
+        : ['example.com', /^.*api.mailgun\.net$/],
   })
   'message-url': string; // A URL that you can use to get and/or delete the message. Only present in the payload posted to the notification URL
   timestamp: number; // The number of seconds passed since January 1, 1970 (See Securing Webhooks)
